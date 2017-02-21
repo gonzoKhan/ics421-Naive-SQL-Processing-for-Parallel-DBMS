@@ -43,23 +43,29 @@ def main(clustername, csvname):
     if 'partition' in clustercfg and 'method' in clustercfg['partition']:
         partmtd = clustercfg['partition']['method']
         if partmtd == 'notpartition':
-            notPartitioned(clustercfg)
+            noPartitioning(clustercfg, csvfile)
         elif partmtd == 'range':
-            rangePartitioned(clustercfg)
+            rangePartitioning(clustercfg, csvfile)
         elif partmtd == 'hash':
-            hashPartitioned(clustercfg)
+            hashPartitioning(clustercfg, csvfile)
 
-def notPartitioned(clustercfg):
+# No partitioning method so insert everything into all tables
+def noPartitioning(clustercfg, csvfile):
     print("Not Partitioned:")
     print(clustercfg)
+    print(csvfile)
 
-def rangePartitioned(clustercfg):
+
+# Range partitioned so
+def rangePartitioning(clustercfg, csvfile):
     print("Range Partitioned:")
     print(clustercfg)
+    print(csvfile)
 
-def hashPartitioned(clustercfg):
+def hashPartitioning(clustercfg, csvfile):
     print("Hash Partitioned:")
     print(clustercfg)
+    print(csvfile)
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
