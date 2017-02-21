@@ -31,7 +31,21 @@ if __name__ == '__main__':
     loader = ClusterConfigLoader()
     walker = ParseTreeWalker()
     walker.walk(loader, cluster_tree)
-    print(loader.getCFG())
+    # print(loader.getCFG())
+    numnodes = loader.cfg['numnodes']
+
+    # # Grab the config for the catalog
+    c_driver = 'catalog.driver=',loader.cfg['catalog']['driver']
+    c_hostname = 'catalog.hostname=',loader.cfg['catalog']['hostname']
+    c_username = 'catalog.username=',loader.cfg['catalog']['username']
+    c_password = 'catalog.passwd=',loader.cfg['catalog']['passwd']
+
+    catalog_info = {
+        'driver': c_driver,
+        'hostname': c_hostname,
+        'username': c_username,
+        'password': c_password
+    }
 
     #Use antlr4 to parse sqlfile
     sql_input = FileStream(sqlfile)

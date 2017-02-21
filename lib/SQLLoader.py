@@ -26,8 +26,6 @@ class SQLLoader(MySQLListener):
             child = ctx.getChild(i)
             if type(child).__name__ == 'Escape_idContext':
                 return child.getText()
-            else:
-                print(type(child).__name__)
 
     # # Enter a parse tree produced by MySQLParser#select_statement.
     # def enterSelect_statement(self, ctx:MySQLParser.Select_statementContext):
