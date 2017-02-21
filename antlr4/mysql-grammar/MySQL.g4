@@ -1,11 +1,5 @@
 grammar MySQL;
 
-options
-{
-	language=Java;
-	backtrack=true;
-}
-
 @header
 {
 }
