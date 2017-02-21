@@ -6,30 +6,31 @@ from io import StringIO
 def serializedATN():
     with StringIO() as buf:
         buf.write("\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\16")
-        buf.write("O\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b")
+        buf.write("R\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b")
         buf.write("\t\b\4\t\t\t\4\n\t\n\4\13\t\13\3\2\6\2\30\n\2\r\2\16\2")
         buf.write("\31\3\3\3\3\3\3\3\3\3\3\5\3!\n\3\3\4\3\4\3\4\3\4\3\4\3")
         buf.write("\4\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\6\3\6\3\6\3\6")
-        buf.write("\3\6\3\6\3\7\3\7\3\7\3\7\3\b\3\b\3\b\3\b\3\t\6\tA\n\t")
-        buf.write("\r\t\16\tB\3\n\6\nF\n\n\r\n\16\nG\3\13\6\13K\n\13\r\13")
-        buf.write("\16\13L\3\13\2\2\f\2\4\6\b\n\f\16\20\22\24\2\4\3\2\f\r")
-        buf.write("\4\2\b\t\13\rL\2\27\3\2\2\2\4 \3\2\2\2\6\"\3\2\2\2\b(")
-        buf.write("\3\2\2\2\n\61\3\2\2\2\f\67\3\2\2\2\16;\3\2\2\2\20@\3\2")
-        buf.write("\2\2\22E\3\2\2\2\24J\3\2\2\2\26\30\5\4\3\2\27\26\3\2\2")
-        buf.write("\2\30\31\3\2\2\2\31\27\3\2\2\2\31\32\3\2\2\2\32\3\3\2")
-        buf.write("\2\2\33!\5\6\4\2\34!\5\b\5\2\35!\5\n\6\2\36!\5\f\7\2\37")
-        buf.write("!\5\16\b\2 \33\3\2\2\2 \34\3\2\2\2 \35\3\2\2\2 \36\3\2")
-        buf.write("\2\2 \37\3\2\2\2!\5\3\2\2\2\"#\7\3\2\2#$\7\13\2\2$%\5")
-        buf.write("\22\n\2%&\7\n\2\2&\'\5\24\13\2\'\7\3\2\2\2()\7\4\2\2)")
-        buf.write("*\7\13\2\2*+\7\5\2\2+,\5\20\t\2,-\7\13\2\2-.\5\22\n\2")
-        buf.write("./\7\n\2\2/\60\5\24\13\2\60\t\3\2\2\2\61\62\7\4\2\2\62")
-        buf.write("\63\7\13\2\2\63\64\5\22\n\2\64\65\7\n\2\2\65\66\5\24\13")
-        buf.write("\2\66\13\3\2\2\2\678\7\6\2\289\7\n\2\29:\5\20\t\2:\r\3")
-        buf.write("\2\2\2;<\7\7\2\2<=\7\n\2\2=>\5\22\n\2>\17\3\2\2\2?A\7")
-        buf.write("\f\2\2@?\3\2\2\2AB\3\2\2\2B@\3\2\2\2BC\3\2\2\2C\21\3\2")
-        buf.write("\2\2DF\t\2\2\2ED\3\2\2\2FG\3\2\2\2GE\3\2\2\2GH\3\2\2\2")
-        buf.write("H\23\3\2\2\2IK\t\3\2\2JI\3\2\2\2KL\3\2\2\2LJ\3\2\2\2L")
-        buf.write("M\3\2\2\2M\25\3\2\2\2\7\31 BGL")
+        buf.write("\3\6\3\6\3\7\3\7\3\7\6\7;\n\7\r\7\16\7<\3\b\3\b\3\b\3")
+        buf.write("\b\3\t\6\tD\n\t\r\t\16\tE\3\n\6\nI\n\n\r\n\16\nJ\3\13")
+        buf.write("\6\13N\n\13\r\13\16\13O\3\13\2\2\f\2\4\6\b\n\f\16\20\22")
+        buf.write("\24\2\4\3\2\f\r\4\2\b\t\13\rP\2\27\3\2\2\2\4 \3\2\2\2")
+        buf.write("\6\"\3\2\2\2\b(\3\2\2\2\n\61\3\2\2\2\f\67\3\2\2\2\16>")
+        buf.write("\3\2\2\2\20C\3\2\2\2\22H\3\2\2\2\24M\3\2\2\2\26\30\5\4")
+        buf.write("\3\2\27\26\3\2\2\2\30\31\3\2\2\2\31\27\3\2\2\2\31\32\3")
+        buf.write("\2\2\2\32\3\3\2\2\2\33!\5\6\4\2\34!\5\b\5\2\35!\5\n\6")
+        buf.write("\2\36!\5\f\7\2\37!\5\16\b\2 \33\3\2\2\2 \34\3\2\2\2 \35")
+        buf.write("\3\2\2\2 \36\3\2\2\2 \37\3\2\2\2!\5\3\2\2\2\"#\7\3\2\2")
+        buf.write("#$\7\13\2\2$%\5\22\n\2%&\7\n\2\2&\'\5\24\13\2\'\7\3\2")
+        buf.write("\2\2()\7\4\2\2)*\7\13\2\2*+\7\5\2\2+,\5\20\t\2,-\7\13")
+        buf.write("\2\2-.\5\22\n\2./\7\n\2\2/\60\5\24\13\2\60\t\3\2\2\2\61")
+        buf.write("\62\7\4\2\2\62\63\7\13\2\2\63\64\5\22\n\2\64\65\7\n\2")
+        buf.write("\2\65\66\5\24\13\2\66\13\3\2\2\2\678\7\6\2\28:\7\n\2\2")
+        buf.write("9;\7\f\2\2:9\3\2\2\2;<\3\2\2\2<:\3\2\2\2<=\3\2\2\2=\r")
+        buf.write("\3\2\2\2>?\7\7\2\2?@\7\n\2\2@A\5\22\n\2A\17\3\2\2\2BD")
+        buf.write("\7\f\2\2CB\3\2\2\2DE\3\2\2\2EC\3\2\2\2EF\3\2\2\2F\21\3")
+        buf.write("\2\2\2GI\t\2\2\2HG\3\2\2\2IJ\3\2\2\2JH\3\2\2\2JK\3\2\2")
+        buf.write("\2K\23\3\2\2\2LN\t\3\2\2ML\3\2\2\2NO\3\2\2\2OM\3\2\2\2")
+        buf.write("OP\3\2\2\2P\25\3\2\2\2\b\31 <EJO")
         return buf.getvalue()
 
 
@@ -423,9 +424,11 @@ class ClusterConfigParser ( Parser ):
         def EQUALS(self):
             return self.getToken(ClusterConfigParser.EQUALS, 0)
 
-        def nodeid(self):
-            return self.getTypedRuleContext(ClusterConfigParser.NodeidContext,0)
-
+        def NUM(self, i:int=None):
+            if i is None:
+                return self.getTokens(ClusterConfigParser.NUM)
+            else:
+                return self.getToken(ClusterConfigParser.NUM, i)
 
         def getRuleIndex(self):
             return ClusterConfigParser.RULE_numnodes
@@ -445,14 +448,25 @@ class ClusterConfigParser ( Parser ):
 
         localctx = ClusterConfigParser.NumnodesContext(self, self._ctx, self.state)
         self.enterRule(localctx, 10, self.RULE_numnodes)
+        self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 53
             self.match(ClusterConfigParser.T__3)
             self.state = 54
             self.match(ClusterConfigParser.EQUALS)
-            self.state = 55
-            self.nodeid()
+            self.state = 56 
+            self._errHandler.sync(self)
+            _la = self._input.LA(1)
+            while True:
+                self.state = 55
+                self.match(ClusterConfigParser.NUM)
+                self.state = 58 
+                self._errHandler.sync(self)
+                _la = self._input.LA(1)
+                if not (_la==ClusterConfigParser.NUM):
+                    break
+
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -494,11 +508,11 @@ class ClusterConfigParser ( Parser ):
         self.enterRule(localctx, 12, self.RULE_tablename)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 57
+            self.state = 60
             self.match(ClusterConfigParser.T__4)
-            self.state = 58
+            self.state = 61
             self.match(ClusterConfigParser.EQUALS)
-            self.state = 59
+            self.state = 62
             self.key()
         except RecognitionException as re:
             localctx.exception = re
@@ -541,13 +555,13 @@ class ClusterConfigParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 62 
+            self.state = 65 
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
-                self.state = 61
+                self.state = 64
                 self.match(ClusterConfigParser.NUM)
-                self.state = 64 
+                self.state = 67 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if not (_la==ClusterConfigParser.NUM):
@@ -600,18 +614,18 @@ class ClusterConfigParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 67 
+            self.state = 70 
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
-                self.state = 66
+                self.state = 69
                 _la = self._input.LA(1)
                 if not(_la==ClusterConfigParser.NUM or _la==ClusterConfigParser.CHARS):
                     self._errHandler.recoverInline(self)
                 else:
                     self._errHandler.reportMatch(self)
                     self.consume()
-                self.state = 69 
+                self.state = 72 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if not (_la==ClusterConfigParser.NUM or _la==ClusterConfigParser.CHARS):
@@ -682,18 +696,18 @@ class ClusterConfigParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 72 
+            self.state = 75 
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
-                self.state = 71
+                self.state = 74
                 _la = self._input.LA(1)
                 if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << ClusterConfigParser.COLON) | (1 << ClusterConfigParser.SLASH) | (1 << ClusterConfigParser.DOT) | (1 << ClusterConfigParser.NUM) | (1 << ClusterConfigParser.CHARS))) != 0)):
                     self._errHandler.recoverInline(self)
                 else:
                     self._errHandler.reportMatch(self)
                     self.consume()
-                self.state = 74 
+                self.state = 77 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << ClusterConfigParser.COLON) | (1 << ClusterConfigParser.SLASH) | (1 << ClusterConfigParser.DOT) | (1 << ClusterConfigParser.NUM) | (1 << ClusterConfigParser.CHARS))) != 0)):

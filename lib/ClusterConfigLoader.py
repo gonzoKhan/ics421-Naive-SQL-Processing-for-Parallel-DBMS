@@ -29,7 +29,10 @@ class ClusterConfigLoader(ClusterConfigListener):
     def exitCatalog_info(self, ctx:ClusterConfigParser.Catalog_infoContext):
         key = self.getKey(ctx)
         value = self.getValue(ctx)
-        self.cfg['catalog', key] = value
+
+        if 'catalog' not in self.cfg:
+            self.cfg['catalog'] = dict()
+        self.cfg['catalog'][key] = value
 
     # Exit a parse tree produced by ClusterConfigParser#node_info.
     def exitNode_info(self, ctx:ClusterConfigParser.Node_infoContext):
@@ -40,19 +43,22 @@ class ClusterConfigLoader(ClusterConfigListener):
             child = ctx.getChild(i)
             if type(child).__name__ == 'NodeidContext':
                 nodeid = child.getText()
-
-        self.cfg[nodeid, key] = value
+        if nodeid not in self.cfg:
+            self.cfg[nodeid] = dict()
+        self.cfg[nodeid][key] = value
 
     # Exit a parse tree produced by ClusterConfigParser#partition_info.
     def exitPartition_info(self, ctx:ClusterConfigParser.Partition_infoContext):
         key = self.getKey(ctx)
         value = self.getValue(ctx)
-        self.cfg['partition', key] = value
+        if 'partition' not in self.cfg:
+            self.cfg['partition'] = dict()
+        self.cfg['partition'][key] = value
 
     # Exit a parse tree produced by ClusterConfigParser#numnodes.
     def exitNumnodes(self, ctx:ClusterConfigParser.NumnodesContext):
-        pass
+        self.cfg['numnodes'] = ctx.getChild(2).getText()
 
     # Exit a parse tree produced by ClusterConfigParser#tablename.
     def exitTablename(self, ctx:ClusterConfigParser.TablenameContext):
-        pass
+        self.cfg['tablename'] = ctx.getChild(2).getText()

@@ -15,7 +15,7 @@ node_info: 'partition' DOT 'node' nodeid DOT key EQUALS value ;
 
 partition_info: 'partition' DOT key EQUALS value ;
 
-numnodes: 'numnodes' EQUALS nodeid ;
+numnodes: 'numnodes' EQUALS NUM+ ;
 
 tablename: 'tablename' EQUALS key ;
 
