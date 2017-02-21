@@ -14,17 +14,7 @@ from lib.CSVGrammar.csvfileListener import csvfileListener
 from lib.ClusterConfigLoader import ClusterConfigLoader
 from lib.csvfileLoader import csvfileLoader
 
-if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        clustername = sys.argv[1]
-    else:
-        clustername = 'clustercfg'
-    if len(sys.argv) > 2:
-        csvname = sys.argv[2]
-    else:
-        csvname = 'csvfile'
-
-
+def main(clustername, csvname):
     # Use antlr4 to parse clustercfg
     cluster_input = FileStream(clustername)
     cluster_lexer = ClusterConfigLexer(cluster_input)
@@ -35,7 +25,7 @@ if __name__ == '__main__':
     cluster_loader = ClusterConfigLoader()
     cluster_walker = ParseTreeWalker()
     cluster_walker.walk(cluster_loader, cluster_tree)
-    print(cluster_loader.getCFG())
+    clustercfg = cluster_loader.getCFG()
 
     # Use antlr4 to parse csvfile
     csv_input = FileStream(csvname)
@@ -47,4 +37,38 @@ if __name__ == '__main__':
     csv_loader = csvfileLoader()
     csv_walker = ParseTreeWalker()
     csv_walker.walk(csv_loader, csv_tree)
-    print(csv_loader.getCSV())
+    csvfile = csv_loader.getCSV()
+
+    # Get partition method and then proceed
+    if 'partition' in clustercfg and 'method' in clustercfg['partition']:
+        partmtd = clustercfg['partition']['method']
+        if partmtd == 'notpartition':
+            notPartitioned(clustercfg)
+        elif partmtd == 'range':
+            rangePartitioned(clustercfg)
+        elif partmtd == 'hash':
+            hashPartitioned(clustercfg)
+
+def notPartitioned(clustercfg):
+    print("Not Partitioned:")
+    print(clustercfg)
+
+def rangePartitioned(clustercfg):
+    print("Range Partitioned:")
+    print(clustercfg)
+
+def hashPartitioned(clustercfg):
+    print("Hash Partitioned:")
+    print(clustercfg)
+
+if __name__ == '__main__':
+    if len(sys.argv) > 1:
+        clustername = sys.argv[1]
+    else:
+        clustername = 'clustercfg'
+    if len(sys.argv) > 2:
+        csvname = sys.argv[2]
+    else:
+        csvname = 'csvfile'
+
+    main(clustername, csvname)
