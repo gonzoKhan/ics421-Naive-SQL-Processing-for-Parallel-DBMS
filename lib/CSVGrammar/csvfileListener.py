@@ -17,15 +17,6 @@ class csvfileListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by csvfileParser#quoted_stuff.
-    def enterQuoted_stuff(self, ctx:csvfileParser.Quoted_stuffContext):
-        pass
-
-    # Exit a parse tree produced by csvfileParser#quoted_stuff.
-    def exitQuoted_stuff(self, ctx:csvfileParser.Quoted_stuffContext):
-        pass
-
-
     # Enter a parse tree produced by csvfileParser#row.
     def enterRow(self, ctx:csvfileParser.RowContext):
         pass

@@ -16,13 +16,13 @@ class ClusterConfigLoader(ClusterConfigListener):
     def getKey(self, ctx):
         for i in range(ctx.getChildCount()):
             child = ctx.getChild(i)
-            if type(child).__name__ == 'KeyContext':
+            if isinstance(child, ClusterConfigParser.KeyContext):
                 return child.getText()
 
     def getValue(self, ctx):
         for i in range(ctx.getChildCount()):
             child = ctx.getChild(i)
-            if type(child).__name__ == 'ValueContext':
+            if isinstance(child, ClusterConfigParser.ValueContext):
                 return child.getText()
 
     # Exit a parse tree produced by ClusterConfigParser#catalog_info.
@@ -41,7 +41,7 @@ class ClusterConfigLoader(ClusterConfigListener):
 
         for i in range(ctx.getChildCount()):
             child = ctx.getChild(i)
-            if type(child).__name__ == 'NodeidContext':
+            if isinstance(child, ClusterConfigParser.NodeidContext):
                 nodeid = child.getText()
         if nodeid not in self.cfg:
             self.cfg[nodeid] = dict()

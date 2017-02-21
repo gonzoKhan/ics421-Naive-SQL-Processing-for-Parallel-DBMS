@@ -7,7 +7,12 @@ from lib.ClusterConfigGrammar.ClusterConfigLexer import ClusterConfigLexer
 from lib.ClusterConfigGrammar.ClusterConfigParser import ClusterConfigParser
 from lib.ClusterConfigGrammar.ClusterConfigListener import ClusterConfigListener
 
+from lib.CSVGrammar.csvfileLexer import csvfileLexer
+from lib.CSVGrammar.csvfileParser import csvfileParser
+from lib.CSVGrammar.csvfileListener import csvfileListener
+
 from lib.ClusterConfigLoader import ClusterConfigLoader
+from lib.csvfileLoader import csvfileLoader
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
@@ -27,7 +32,19 @@ if __name__ == '__main__':
     cluster_parser = ClusterConfigParser(cluster_stream)
     cluster_tree = cluster_parser.config()
 
-    loader = ClusterConfigLoader()
-    walker = ParseTreeWalker()
-    walker.walk(loader, cluster_tree)
-    print(loader.getCFG())
+    cluster_loader = ClusterConfigLoader()
+    cluster_walker = ParseTreeWalker()
+    cluster_walker.walk(cluster_loader, cluster_tree)
+    print(cluster_loader.getCFG())
+
+    # Use antlr4 to parse csvfile
+    csv_input = FileStream(csvname)
+    csv_lexer = csvfileLexer(csv_input)
+    csv_stream = CommonTokenStream(csv_lexer)
+    csv_parser = csvfileParser(csv_stream)
+    csv_tree = csv_parser.rows()
+
+    csv_loader = csvfileLoader()
+    csv_walker = ParseTreeWalker()
+    csv_walker.walk(csv_loader, csv_tree)
+    print(csv_loader.getCSV())

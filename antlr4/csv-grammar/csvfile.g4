@@ -5,8 +5,6 @@ column: STRING
       |
       ;
 
-quoted_stuff: (STUFF | COMMA)+ ;
-
 row: column (COMMA column)* NEWLINE;
 
 rows: (row)+ ;
