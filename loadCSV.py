@@ -1,4 +1,7 @@
 import sys
+import re
+
+import mysql.connector
 
 from antlr4 import *
 from antlr4.InputStream import InputStream
@@ -55,17 +58,76 @@ def noPartitioning(clustercfg, csvfile):
     print(clustercfg)
     print(csvfile)
 
+    
 
-# Range partitioned so
+
+# Range partitioning
 def rangePartitioning(clustercfg, csvfile):
     print("Range Partitioned:")
     print(clustercfg)
     print(csvfile)
 
+# Hash partitioning
 def hashPartitioning(clustercfg, csvfile):
     print("Hash Partitioned:")
     print(clustercfg)
     print(csvfile)
+
+# Takes the clustercfg dictionary and returns a list of dictionaries containing info on each node with the table from clustercfg.
+def getNodeInfo(clustercfg):
+    catalog_query = (
+        "SELECT nodeurl, nodeuser, nodepasswd, partmtd, nodeid, partcol, partparam1, partparam2 "
+        "FROM DTABLES "
+        "WHERE tname = %s;"
+    )
+
+    catalog = getCatalogParams(clustercfg)
+    if catalog:
+        results = list()
+        try:
+            connection = mysql.connector.connect(**catalog)
+            cursor = connection.cursor(dictionary=True)
+
+            cursor.execute(catalog_query, (clustercfg['tablename']))
+
+            # Get a list of dictionaries.
+            for row in cursor:
+                results.append(row)
+
+        except mysql.connector.Error as err:
+            print(err)
+        except Error as err:
+            print(str(err))
+        finally:
+            cursor.close()
+            connection.close()
+
+        if len(results) > 0:
+            return results
+
+    return None
+
+def getCatalogParams(clustercfg):
+    try:
+        (address, port, database) = parseURL(clustercfg['catalog']['hostname'])
+        return  {
+                    'host': address,
+                    'port': port,
+                    'database': database,
+                    'user': clustercfg['catalog']['username'],
+                    'password': clustercfg['catalog']['passwd']
+
+                }
+    except:
+        return None
+
+    # Grabs the address, port, and database from the hostname url.
+    def parseURL(url):
+        hostmatch = re.search('^.*//([\.\d]+):(\d+)/(.*)$', url, flags=re.IGNORECASE)
+        if hostmatch and len(hostmatch.groups()) == 3:
+            return hostmatch.groups()
+        else:
+            return None
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
