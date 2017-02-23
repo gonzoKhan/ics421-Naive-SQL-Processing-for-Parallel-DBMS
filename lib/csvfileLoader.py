@@ -21,4 +21,4 @@ class csvfileLoader(csvfileListener):
             if isinstance(child, csvfileParser.ColumnContext):
                 row_elements.append(child.getText().strip('"'))
 
-        self.csv.append(row_elements)
+        self.csv.append(tuple(row_elements))

@@ -1,6 +1,6 @@
 catalog.driver=com.ibm.db2.jcc.DB2Driver
-catalog.hostname=jdbc:db2://10.0.0.3:50001/mycatdb
-catalog.username=db2inst1
+catalog.hostname=jdbc:db2://127.0.0.1:3306/jesusrorycatalog
+catalog.username=dbuser
 catalog.passwd=mypasswd
 
 tablename=books

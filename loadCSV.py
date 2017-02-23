@@ -58,40 +58,57 @@ def noPartitioning(clustercfg, csvfile):
     print(clustercfg)
     print(csvfile)
 
-    
-
+    nodeinfo = getNodeInfo(clustercfg)
+    print(nodeinfo)
+    connection_list = connectionLoader(nodeinfo, csvfile, getCatalogParams(clustercfg))
+    if nodeinfo and clustercfg['numnodes'] == len(nodeinfo):
+        pass
+    else:
+        print("Error in unpartitioned csv loading. \nnodeinfo_length={}\nnodeinfo={}\nnumnodes={}".format(len(nodeinfo), nodeinfo, clustercfg['numnodes']))
 
 # Range partitioning
 def rangePartitioning(clustercfg, csvfile):
     print("Range Partitioned:")
+    print("clustercfg")
     print(clustercfg)
+    print("csvfile")
     print(csvfile)
+    nodeinfo = getNodeInfo(clustercfg)
+    print("nodeinfo")
+    print(nodeinfo)
 
 # Hash partitioning
 def hashPartitioning(clustercfg, csvfile):
     print("Hash Partitioned:")
+    print("clustercfg")
     print(clustercfg)
+    print("csvfile")
     print(csvfile)
 
 # Takes the clustercfg dictionary and returns a list of dictionaries containing info on each node with the table from clustercfg.
 def getNodeInfo(clustercfg):
     catalog_query = (
-        "SELECT nodeurl, nodeuser, nodepasswd, partmtd, nodeid, partcol, partparam1, partparam2 "
+        "SELECT * "
         "FROM DTABLES "
         "WHERE tname = %s;"
     )
 
     catalog = getCatalogParams(clustercfg)
+    # print("catalog")
+    # print(catalog)
     if catalog:
-        results = list()
+        results = None
         try:
             connection = mysql.connector.connect(**catalog)
             cursor = connection.cursor(dictionary=True)
-
-            cursor.execute(catalog_query, (clustercfg['tablename']))
+            # print("catalog_query")
+            # print(catalog_query)
+            cursor.execute(catalog_query, (clustercfg['tablename'],))
+            results = cursor.fetchall()
 
             # Get a list of dictionaries.
             for row in cursor:
+                print(row)
                 results.append(row)
 
         except mysql.connector.Error as err:
@@ -101,7 +118,6 @@ def getNodeInfo(clustercfg):
         finally:
             cursor.close()
             connection.close()
-
         if len(results) > 0:
             return results
 
@@ -109,9 +125,9 @@ def getNodeInfo(clustercfg):
 
 def getCatalogParams(clustercfg):
     try:
-        (address, port, database) = parseURL(clustercfg['catalog']['hostname'])
+        (host, port, database) = parseURL(clustercfg['catalog']['hostname'])
         return  {
-                    'host': address,
+                    'host': host,
                     'port': port,
                     'database': database,
                     'user': clustercfg['catalog']['username'],
@@ -121,13 +137,13 @@ def getCatalogParams(clustercfg):
     except:
         return None
 
-    # Grabs the address, port, and database from the hostname url.
-    def parseURL(url):
-        hostmatch = re.search('^.*//([\.\d]+):(\d+)/(.*)$', url, flags=re.IGNORECASE)
-        if hostmatch and len(hostmatch.groups()) == 3:
-            return hostmatch.groups()
-        else:
-            return None
+# Grabs the address, port, and database from the hostname url.
+def parseURL(url):
+    hostmatch = re.search('^.*//([\.\d]+):(\d+)/(.*)$', url, flags=re.IGNORECASE)
+    if hostmatch and len(hostmatch.groups()) == 3:
+        return hostmatch.groups()
+    else:
+        return None
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
