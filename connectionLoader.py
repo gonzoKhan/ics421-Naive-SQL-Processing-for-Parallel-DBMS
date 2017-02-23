@@ -30,8 +30,6 @@ class connectionLoader(object):
 
         self.connection = None
         self.cursor = None
-        print ("\n")
-        print (self.nodeparams)
 
     # Function for updating params if needed.
     def updateNodeParams(self):
@@ -42,15 +40,16 @@ class connectionLoader(object):
         try:
             self.connection = mysql.connector.connect(**self.nodeparams)
         except mysql.connector.Error as err:
-            print("ERROR: Connecting with node{}:\nnodeinfo:\n".format(nodeinfo['nodeid'], nodeinfo))
+            print("ERROR: Connecting with node{}:\nnodeinfo: {}\n".format(self.nodeinfo['nodeid'], self.nodeinfo))
             print(err)
         except Error as err:
-            print("ERROR: Connecting with node{}:\nnodeinfo:\n".format(nodeinfo['nodeid'], nodeinfo))
+            print("ERROR: Connecting with node{}:\nnodeinfo: {}\n".format(self.nodeinfo['nodeid'], self.nodeinfo))
             print(str(err))
 
     # Must be called after establishConnection. It inserts the data into the database for the connection.
     def loadData(self):
         if self.connection:
+            
             try:
                 self.cursor = self.connection.cursor()
                 self.cursor.execute("SELECT * FROM %s", (nodeinfo['tablename']))
