@@ -1,4 +1,5 @@
 import mysql.connector
+import re
 
 # Connects to given node and inserts data into it and then updates catalog.
 # First call establishConnection() and then loadData(). Finally call commit() or rollback()
@@ -11,9 +12,26 @@ class connectionLoader(object):
         self.nodeinfo = nodeinfo
         self.data = data
         self.catalog_params = catalog_params
-        self.nodeparams = self.__getNodeParams()
+
+        # This line wasn't working, took it out and replaced it with a clunkier segment.
+        # self.nodeparams = self.__getNodeParams()
+
+        user = self.nodeinfo['nodeuser']
+        passwd = self.nodeinfo['nodepasswd']
+        (host, port, database) = self.__parseURL(nodeinfo['nodeurl'])
+
+        self.nodeparams = {
+            'user': user,
+            'passwd': passwd,
+            'host': host,
+            'port': port,
+            'database': database
+        }
+
         self.connection = None
         self.cursor = None
+        print ("\n")
+        print (self.nodeparams)
 
     # Function for updating params if needed.
     def updateNodeParams(self):
@@ -76,7 +94,7 @@ class connectionLoader(object):
 
 
     # Grabs the host, port, and database from the hostname url.
-    def __parseURL(url):
+    def __parseURL(self,url):
         hostmatch = re.search('^.*//([\.\d]+):(\d+)/(.*)$', url, flags=re.IGNORECASE)
         if hostmatch and len(hostmatch.groups()) == 3:
             return hostmatch.groups()
