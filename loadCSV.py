@@ -17,6 +17,8 @@ from lib.CSVGrammar.csvfileListener import csvfileListener
 from lib.ClusterConfigLoader import ClusterConfigLoader
 from lib.csvfileLoader import csvfileLoader
 
+from connectionLoader import connectionLoader
+
 def main(clustername, csvname):
     # Use antlr4 to parse clustercfg
     cluster_input = FileStream(clustername)
@@ -42,48 +44,46 @@ def main(clustername, csvname):
     csv_walker.walk(csv_loader, csv_tree)
     csvfile = csv_loader.getCSV()
 
-    # Get partition method and then proceed
+    print("clustercfg")
+    print(clustercfg)
+    print("csvfile")
+    print(csvfile)
+
+    # Get partition method and get list of connectionLoaders
+    conn_list = None
     if 'partition' in clustercfg and 'method' in clustercfg['partition']:
         partmtd = clustercfg['partition']['method']
         if partmtd == 'notpartition':
-            noPartitioning(clustercfg, csvfile)
+            conn_list = noPartitioning(clustercfg, csvfile)
         elif partmtd == 'range':
-            rangePartitioning(clustercfg, csvfile)
+            conn_list = rangePartitioning(clustercfg, csvfile)
         elif partmtd == 'hash':
-            hashPartitioning(clustercfg, csvfile)
+            conn_list = hashPartitioning(clustercfg, csvfile)
+
+    if conn_list:
+        print("Got conn_list")
+        print(conn_list)
 
 # No partitioning method so insert everything into all tables
 def noPartitioning(clustercfg, csvfile):
-    print("Not Partitioned:")
-    print(clustercfg)
-    print(csvfile)
+    conn_list = list()
+    nodes = getNodeInfo(clustercfg)
+    if len(nodes) <= int(clustercfg['numnodes']):
+        for (i, node) in enumerate(nodes):
+            if str(node['nodeid']) in clustercfg:
+                catalog = getCatalogParams(clustercfg)
+                conn_list.insert(-1, connectionLoader(node, csvfile, catalog) )
 
-    nodeinfo = getNodeInfo(clustercfg)
-    print(nodeinfo)
-    connection_list = connectionLoader(nodeinfo, csvfile, getCatalogParams(clustercfg))
-    if nodeinfo and clustercfg['numnodes'] == len(nodeinfo):
-        pass
-    else:
-        print("Error in unpartitioned csv loading. \nnodeinfo_length={}\nnodeinfo={}\nnumnodes={}".format(len(nodeinfo), nodeinfo, clustercfg['numnodes']))
+    return conn_list
 
 # Range partitioning
 def rangePartitioning(clustercfg, csvfile):
-    print("Range Partitioned:")
-    print("clustercfg")
-    print(clustercfg)
-    print("csvfile")
-    print(csvfile)
-    nodeinfo = getNodeInfo(clustercfg)
-    print("nodeinfo")
-    print(nodeinfo)
+    pass
+
 
 # Hash partitioning
 def hashPartitioning(clustercfg, csvfile):
-    print("Hash Partitioned:")
-    print("clustercfg")
-    print(clustercfg)
-    print("csvfile")
-    print(csvfile)
+    pass
 
 # Takes the clustercfg dictionary and returns a list of dictionaries containing info on each node with the table from clustercfg.
 def getNodeInfo(clustercfg):
