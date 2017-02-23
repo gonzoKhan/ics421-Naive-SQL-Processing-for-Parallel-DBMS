@@ -81,8 +81,19 @@ def rangePartitioning(clustercfg, csvfile):
     conn_list = list()
     nodes = getNodeInfo(clustercfg)
     columns = getColumns(nodes[0])
+    colnum = None
+
+    # Get column number for sorting
+    for (i, column) in enumerate(columns):
+        if column == clustercfg['partition']['column']:
+            colnum = i
     print(columns)
-    #for loop here that checks each column against clustercfg['tablename'] and gets column number
+    print("colnum:{}".format(colnum))
+
+    # sort csvfile
+    csvfile = sorted(csvfile, key=lambda x: int(x[colnum]))
+    for row in csvfile:
+        print(row)
 
     if columns and len(nodes) <= int(clustercfg['numnodes']):
         for (i, node) in enumerate(nodes):
