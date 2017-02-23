@@ -2,7 +2,7 @@ import mysql.connector
 
 # Connects to given node and inserts data into it and then updates catalog.
 # First call establishConnection() and then loadData(). Finally call commit() or rollback()
-class connectionLoader():
+class connectionLoader(object):
     # nodeinfo: dictionary of result for this node from dtables.
     # data: list of tuples where each row of csvfile is a tuple containing the separate columns.
     # catalog_params: dictionary used as parameters for catalog connection.
@@ -36,7 +36,7 @@ class connectionLoader():
             try:
                 self.cursor = self.connection.cursor()
                 self.cursor.execute("SELECT * FROM %s", (nodeinfo['tablename']))
-                fieldnames = [for i[0] in self.cursor.description]
+                fieldnames = [i[0] for i in self.cursor.description]
                 insert_statement = "INSERT INTO %(table)s ("
 
                 # Add in column names
@@ -52,7 +52,9 @@ class connectionLoader():
                 print("insert_statement:\n{}".format(insert_statement))
 
                 self.cursor.executemany(insert_statement, self.data)
-
+            except:
+                pass # FIX THIS LATER
+###################################################################
 
     # returns dictionary of params for connection to node
     # nodeparams returned: user, passwd, host, port, database
