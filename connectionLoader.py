@@ -12,22 +12,7 @@ class connectionLoader(object):
         self.nodeinfo = nodeinfo
         self.data = data
         self.catalog_params = catalog_params
-
-        # This line wasn't working, took it out and replaced it with a clunkier segment.
-        # self.nodeparams = self.__getNodeParams()
-
-        user = self.nodeinfo['nodeuser']
-        passwd = self.nodeinfo['nodepasswd']
-        (host, port, database) = self.__parseURL(nodeinfo['nodeurl'])
-
-        self.nodeparams = {
-            'user': user,
-            'passwd': passwd,
-            'host': host,
-            'port': port,
-            'database': database
-        }
-
+        self.nodeparams = self.__getNodeParams()
         self.connection = None
         self.cursor = None
 
@@ -42,14 +27,14 @@ class connectionLoader(object):
         except mysql.connector.Error as err:
             print("ERROR: Connecting with node{}:\nnodeinfo: {}\n".format(self.nodeinfo['nodeid'], self.nodeinfo))
             print(err)
-        except Error as err:
+        except BaseException as e:
             print("ERROR: Connecting with node{}:\nnodeinfo: {}\n".format(self.nodeinfo['nodeid'], self.nodeinfo))
-            print(str(err))
+            print(str(e))
 
     # Must be called after establishConnection. It inserts the data into the database for the connection.
     def loadData(self):
         if self.connection:
-            
+
             try:
                 self.cursor = self.connection.cursor()
                 self.cursor.execute("SELECT * FROM %s", (nodeinfo['tablename']))
@@ -79,7 +64,7 @@ class connectionLoader(object):
         try:
             user = self.nodeinfo['nodeuser']
             passwd = self.nodeinfo['nodepasswd']
-            (host, port, database) = self.__parseURL(nodeinfo['nodeurl'])
+            (host, port, database) = self.__parseURL(self.nodeinfo['nodeurl'])
 
             return {
                 'user': user,
@@ -88,7 +73,9 @@ class connectionLoader(object):
                 'port': port,
                 'database': database
             }
-        except:
+        except BaseException as e:
+            print("Error getting node params:")
+            print(str(e))
             return None
 
 

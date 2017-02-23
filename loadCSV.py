@@ -78,7 +78,19 @@ def noPartitioning(clustercfg, csvfile):
 
 # Range partitioning
 def rangePartitioning(clustercfg, csvfile):
-    pass
+    conn_list = list()
+    nodes = getNodeInfo(clustercfg)
+    columns = getColumns(nodes[0])
+    print(columns)
+    #for loop here that checks each column against clustercfg['tablename'] and gets column number
+
+    if columns and len(nodes) <= int(clustercfg['numnodes']):
+        for (i, node) in enumerate(nodes):
+            if str(node['nodeid']) in clustercfg:
+                catalog = getCatalogParams(clustercfg)
+                conn_list.insert(-1, connectionLoader(node, csvfile, catalog) )
+
+    return conn_list
 
 
 # Hash partitioning
@@ -135,6 +147,31 @@ def getCatalogParams(clustercfg):
 
                 }
     except:
+        return None
+
+def getColumns(node):
+    try:
+        user = node['nodeuser']
+        passwd = node['nodepasswd']
+        (host, port, database) = parseURL(node['nodeurl'])
+        conn_params = {
+            'user': user,
+            'passwd': passwd,
+            'host': host,
+            'port': port,
+            'database': database
+        }
+        connection = mysql.connector.connect(**conn_params)
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM {};".format(node['tname']))
+        column_names = [i[0] for i in cursor.description]
+        return column_names
+    except BaseException as e:
+        print(cursor.statement)
+        print("Could not get columns in getColumns()")
+        print(str(e))
+        print("Arg:")
+        print(node)
         return None
 
 # Grabs the address, port, and database from the hostname url.

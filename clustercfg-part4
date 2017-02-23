@@ -4,7 +4,7 @@ catalog.username=dbuser
 catalog.passwd=mypasswd
 
 tablename=books
-partition.method=notpartition
+partition.method=range
 partition.column=age
 
 numnodes=2
