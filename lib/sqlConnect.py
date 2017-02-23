@@ -13,13 +13,14 @@ from lib.SQLLoader import SQLLoader
 
 # Allows multithreading when creating a connection to database and executing a ddl.
 class SQLconnectionThread (threading.Thread):
-    def __init__(self, threadID, config, sql, driver, catalog_info):
+    def __init__(self, threadID, config, sql, driver, catalog_info, url):
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.config = config
         self.sqlfile = sql
         self.driver = driver
         self.catalog_info = catalog_info
+        self.url = url
         self.toSQL = ""
 
     # Parses and runs the sqlfile
@@ -54,8 +55,7 @@ class SQLconnectionThread (threading.Thread):
             cursor.close()
             connection.close()
 
-
-            print("SUCCESS: THREAD{0} (database={1},hostname={2}): Sucessfully executed SQL".format(self.threadID, self.config['database'], self.config['host']))
+            print("[{0}]: success.".format(self.url))
 
         except mysql.connector.Error as err:
-            print("FAILURE: THREAD{0} (database={1},hostname={2}): ".format(self.threadID, self.config['database'], self.config['host']) + err.msg)
+            print("[{0}]: failed.".format(self.url))

@@ -102,7 +102,7 @@ try:
             'database': nodehost.group(3)
         }
         # print(nodeconfig)
-        threads.insert( -1, SQLconnectionThread(nid, nodeconfig, sqlfile, driver, catalog_info) )
+        threads.insert( -1, SQLconnectionThread(nid, nodeconfig, sqlfile, driver, catalog_info, url) )
 
     # For loop that runs each connectionThread.
     for conn in threads:
