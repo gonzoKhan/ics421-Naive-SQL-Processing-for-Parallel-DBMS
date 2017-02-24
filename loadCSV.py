@@ -152,12 +152,20 @@ def hashPartitioning(clustercfg, csvfile):
     conn_list = list()
     nodes = getNodeInfo(clustercfg)
     catalog = getCatalogParams(clustercfg)
-    candidates = catalogCompliance(clustercfg,nodes)
-    print ("Candidate Nodes: {}".format(candidates))
+    candidates, colNumber = catalogCompliance(clustercfg,nodes)
+    # print ("Candidate Nodes: {}".format(candidates))
+    # print (colNumber)
+    partitionInsertRow = list()
+    partparam1 = len(candidates)
+    tableInsert = ("INSERT INTO {0} VALUES {1};")
 
-
-
-    return conn_list 
+    for (i, row) in enumerate(csvfile):
+        part = ((int(row[colNumber]) % partparam1) +1)
+        # print (tableInsert.format(nodes[part-1]['tname'], row))
+        partitionInsertRow.insert(0, (part, tableInsert.format(nodes[part-1]['tname'], row)))
+        # print((int(row[colNumber]) % partparam1) +1)
+    print (partitionInsertRow)
+    return conn_list
 
 # Takes the clustercfg dictionary and returns a list of dictionaries containing info on each node with the table from clustercfg.
 def getNodeInfo(clustercfg):
@@ -247,19 +255,19 @@ def parseURL(url):
 def catalogCompliance(clustercfg, nodes):
         candidates = list()
         partCol = getColumns(nodes[0])
-
+        colNumber = None
         #Checks every col against the potential range column
         for col in range(len(partCol)):
             if clustercfg['partition']['column'] == partCol[int(col)]:
+                colNumber = int(col)
                 # Checks candidate nodes for correct partition
                 for (i, node) in enumerate(nodes):
-                    if clustercfg['partition']['method'] == nodes[i]['partmtd']:
-                        candidates = nodes[i]
-
-                return candidates
+                    if 2 == nodes[i]['partmtd']:
+                        candidates.insert(0,nodes[i])
+                return candidates , colNumber
             else:
                 print("The available columns for this table are: {0}. \n {1} is not a column in this table.".format(partCol,clustercfg['partition']['column']))
-                return candidates
+                return candidates , colNumber
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
