@@ -12,4 +12,4 @@ partition.node1.param1=0
 partition.node1.param2=7000
 
 partition.node2.param1=7000
-partition.node2.param2=1000000
+partition.node2.param2=100000

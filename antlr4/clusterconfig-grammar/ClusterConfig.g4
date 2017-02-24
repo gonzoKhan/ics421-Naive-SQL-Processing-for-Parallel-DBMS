@@ -21,13 +21,15 @@ tablename: 'tablename' EQUALS key ;
 
 nodeid: NUM+ ;
 key: (CHARS | NUM)+ ;
-value: (CHARS | NUM | DOT | SLASH | COLON | UNDERSCORE)+ ;
+value: (PLUS | MINUS | CHARS | NUM | DOT | SLASH | COLON | UNDERSCORE)+ ;
 
 COLON: ':' ;
 SLASH: '/' ;
 EQUALS: '=' ;
 DOT: '.' ;
 UNDERSCORE: '_' ;
+PLUS: '+' ;
+MINUS: '-' ;
 NUM: ( '0' .. '9' )+ ;
 CHARS: ( 'a' .. 'z' | 'A' .. 'Z')+ ;
 WS: [ \t\r\n]+ -> skip ;

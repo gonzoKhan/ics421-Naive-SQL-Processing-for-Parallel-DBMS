@@ -5,7 +5,7 @@ from io import StringIO
 
 def serializedATN():
     with StringIO() as buf:
-        buf.write("\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\17")
+        buf.write("\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\21")
         buf.write("R\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b")
         buf.write("\t\b\4\t\t\t\4\n\t\n\4\13\t\13\3\2\6\2\30\n\2\r\2\16\2")
         buf.write("\31\3\3\3\3\3\3\3\3\3\3\5\3!\n\3\3\4\3\4\3\4\3\4\3\4\3")
@@ -13,7 +13,7 @@ def serializedATN():
         buf.write("\3\6\3\6\3\7\3\7\3\7\6\7;\n\7\r\7\16\7<\3\b\3\b\3\b\3")
         buf.write("\b\3\t\6\tD\n\t\r\t\16\tE\3\n\6\nI\n\n\r\n\16\nJ\3\13")
         buf.write("\6\13N\n\13\r\13\16\13O\3\13\2\2\f\2\4\6\b\n\f\16\20\22")
-        buf.write("\24\2\4\3\2\r\16\4\2\b\t\13\16P\2\27\3\2\2\2\4 \3\2\2")
+        buf.write("\24\2\4\3\2\17\20\4\2\b\t\13\20P\2\27\3\2\2\2\4 \3\2\2")
         buf.write("\2\6\"\3\2\2\2\b(\3\2\2\2\n\61\3\2\2\2\f\67\3\2\2\2\16")
         buf.write(">\3\2\2\2\20C\3\2\2\2\22H\3\2\2\2\24M\3\2\2\2\26\30\5")
         buf.write("\4\3\2\27\26\3\2\2\2\30\31\3\2\2\2\31\27\3\2\2\2\31\32")
@@ -25,12 +25,12 @@ def serializedATN():
         buf.write("\13\2\2-.\5\22\n\2./\7\n\2\2/\60\5\24\13\2\60\t\3\2\2")
         buf.write("\2\61\62\7\4\2\2\62\63\7\13\2\2\63\64\5\22\n\2\64\65\7")
         buf.write("\n\2\2\65\66\5\24\13\2\66\13\3\2\2\2\678\7\6\2\28:\7\n")
-        buf.write("\2\29;\7\r\2\2:9\3\2\2\2;<\3\2\2\2<:\3\2\2\2<=\3\2\2\2")
-        buf.write("=\r\3\2\2\2>?\7\7\2\2?@\7\n\2\2@A\5\22\n\2A\17\3\2\2\2")
-        buf.write("BD\7\r\2\2CB\3\2\2\2DE\3\2\2\2EC\3\2\2\2EF\3\2\2\2F\21")
-        buf.write("\3\2\2\2GI\t\2\2\2HG\3\2\2\2IJ\3\2\2\2JH\3\2\2\2JK\3\2")
-        buf.write("\2\2K\23\3\2\2\2LN\t\3\2\2ML\3\2\2\2NO\3\2\2\2OM\3\2\2")
-        buf.write("\2OP\3\2\2\2P\25\3\2\2\2\b\31 <EJO")
+        buf.write("\2\29;\7\17\2\2:9\3\2\2\2;<\3\2\2\2<:\3\2\2\2<=\3\2\2")
+        buf.write("\2=\r\3\2\2\2>?\7\7\2\2?@\7\n\2\2@A\5\22\n\2A\17\3\2\2")
+        buf.write("\2BD\7\17\2\2CB\3\2\2\2DE\3\2\2\2EC\3\2\2\2EF\3\2\2\2")
+        buf.write("F\21\3\2\2\2GI\t\2\2\2HG\3\2\2\2IJ\3\2\2\2JH\3\2\2\2J")
+        buf.write("K\3\2\2\2K\23\3\2\2\2LN\t\3\2\2ML\3\2\2\2NO\3\2\2\2OM")
+        buf.write("\3\2\2\2OP\3\2\2\2P\25\3\2\2\2\b\31 <EJO")
         return buf.getvalue()
 
 
@@ -46,11 +46,12 @@ class ClusterConfigParser ( Parser ):
 
     literalNames = [ "<INVALID>", "'catalog'", "'partition'", "'node'", 
                      "'numnodes'", "'tablename'", "':'", "'/'", "'='", "'.'", 
-                     "'_'" ]
+                     "'_'", "'+'", "'-'" ]
 
     symbolicNames = [ "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
                       "<INVALID>", "<INVALID>", "COLON", "SLASH", "EQUALS", 
-                      "DOT", "UNDERSCORE", "NUM", "CHARS", "WS" ]
+                      "DOT", "UNDERSCORE", "PLUS", "MINUS", "NUM", "CHARS", 
+                      "WS" ]
 
     RULE_config = 0
     RULE_stat = 1
@@ -77,9 +78,11 @@ class ClusterConfigParser ( Parser ):
     EQUALS=8
     DOT=9
     UNDERSCORE=10
-    NUM=11
-    CHARS=12
-    WS=13
+    PLUS=11
+    MINUS=12
+    NUM=13
+    CHARS=14
+    WS=15
 
     def __init__(self, input:TokenStream):
         super().__init__(input)
@@ -647,6 +650,18 @@ class ClusterConfigParser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
+        def PLUS(self, i:int=None):
+            if i is None:
+                return self.getTokens(ClusterConfigParser.PLUS)
+            else:
+                return self.getToken(ClusterConfigParser.PLUS, i)
+
+        def MINUS(self, i:int=None):
+            if i is None:
+                return self.getTokens(ClusterConfigParser.MINUS)
+            else:
+                return self.getToken(ClusterConfigParser.MINUS, i)
+
         def CHARS(self, i:int=None):
             if i is None:
                 return self.getTokens(ClusterConfigParser.CHARS)
@@ -710,7 +725,7 @@ class ClusterConfigParser ( Parser ):
             while True:
                 self.state = 74
                 _la = self._input.LA(1)
-                if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << ClusterConfigParser.COLON) | (1 << ClusterConfigParser.SLASH) | (1 << ClusterConfigParser.DOT) | (1 << ClusterConfigParser.UNDERSCORE) | (1 << ClusterConfigParser.NUM) | (1 << ClusterConfigParser.CHARS))) != 0)):
+                if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << ClusterConfigParser.COLON) | (1 << ClusterConfigParser.SLASH) | (1 << ClusterConfigParser.DOT) | (1 << ClusterConfigParser.UNDERSCORE) | (1 << ClusterConfigParser.PLUS) | (1 << ClusterConfigParser.MINUS) | (1 << ClusterConfigParser.NUM) | (1 << ClusterConfigParser.CHARS))) != 0)):
                     self._errHandler.recoverInline(self)
                 else:
                     self._errHandler.reportMatch(self)
@@ -718,7 +733,7 @@ class ClusterConfigParser ( Parser ):
                 self.state = 77 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << ClusterConfigParser.COLON) | (1 << ClusterConfigParser.SLASH) | (1 << ClusterConfigParser.DOT) | (1 << ClusterConfigParser.UNDERSCORE) | (1 << ClusterConfigParser.NUM) | (1 << ClusterConfigParser.CHARS))) != 0)):
+                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << ClusterConfigParser.COLON) | (1 << ClusterConfigParser.SLASH) | (1 << ClusterConfigParser.DOT) | (1 << ClusterConfigParser.UNDERSCORE) | (1 << ClusterConfigParser.PLUS) | (1 << ClusterConfigParser.MINUS) | (1 << ClusterConfigParser.NUM) | (1 << ClusterConfigParser.CHARS))) != 0)):
                     break
 
         except RecognitionException as re:

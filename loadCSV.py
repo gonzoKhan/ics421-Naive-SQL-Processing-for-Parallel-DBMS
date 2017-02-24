@@ -105,8 +105,8 @@ def rangePartitioning(clustercfg, csvfile):
             print("\nnode{}".format(node['nodeid'])) # COMMENT OUT
             print("Range: {} to {}".format(clustercfg[str(node['nodeid'])]['param1'], clustercfg[str(node['nodeid'])]['param2'])) # COMMENT OUT
             (startrow, endrow) = getRangeSlice(
-                                    int(clustercfg[str(node['nodeid'])]['param1']),
-                                    int(clustercfg[str(node['nodeid'])]['param2']),
+                                    clustercfg[str(node['nodeid'])]['param1'],
+                                    clustercfg[str(node['nodeid'])]['param2'],
                                     colnum, csvfile
                                 )
             print("Result ({}:{}) out of (0:{}):".format(startrow, endrow, len(csvfile))) # COMMENT OUT
@@ -120,11 +120,25 @@ def getRangeSlice(low, high, colnum, csvfile):
     try:
         startrow = None
         endrow = None
+        get_endrow = 0
+        if low == '-inf':
+            startrow = 0
+            get_endrow = 1
+        else:
+            low = float(low)
+        if high == '+inf':
+            endrow = len(csvfile) - 1
+            get_endrow = -1
+        else:
+            high = float(high)
+
         for (i, row) in enumerate(csvfile):
-            if startrow is None and int(row[colnum]) >= low:
+            if startrow is None and float(row[colnum]) >= low:
                 # print("{}>={}".format(row[colnum], low)) # COMMENT OUT
                 startrow = i
-            elif startrow is not None and int(row[colnum]) <= high:
+                if get_endrow == 0:
+                    get_endrow = 1
+            elif get_endrow > 0 and float(row[colnum]) <= high:
                 # print("{}<={}".format(row[colnum], high)) # COMMENT OUT
                 endrow = i
         endrow = endrow + 1 # to include last element for slice command
