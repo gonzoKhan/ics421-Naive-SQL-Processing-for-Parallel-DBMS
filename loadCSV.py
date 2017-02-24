@@ -188,7 +188,7 @@ def hashPartitioning(clustercfg, csvfile):
 
     for x in range(partparam1):
         thisPart = candidates[x]['nodeid']
-        print(thisPart)
+        # print(thisPart)
         templist = list()
         for (i,row) in enumerate(csvfile):
             part = ((int(row[colNumber]) % int(partparam1)) +1)
