@@ -44,11 +44,11 @@ def main(clustername, csvname):
     csv_walker.walk(csv_loader, csv_tree)
     csvfile = csv_loader.getCSV()
 
-    print("\nclustercfg contents:\n{")
-    for x in clustercfg: print("{}: {}".format(x, clustercfg[x]))
-    print("}")
-    print("\ncsvfile (unsorted):")
-    for x in csvfile: print(x)
+    # print("\nclustercfg contents:\n{") # COMMENT OUT
+    # for x in clustercfg: print("{}: {}".format(x, clustercfg[x])) # COMMENT OUT
+    # print("}") # COMMENT OUT
+    # print("\ncsvfile (unsorted):") # COMMENT OUT
+    # for x in csvfile: print(x) # COMMENT OUT
 
     # Get partition method and get list of connectionLoaders
     conn_list = None
@@ -62,10 +62,10 @@ def main(clustername, csvname):
             conn_list = hashPartitioning(clustercfg, csvfile)
 
     if conn_list:
-        print("\nGot conn_list:")
-        for conn in conn_list:
-            print("\nConnection Info:")
-            conn.show()
+        # print("\nGot conn_list:") # COMMENT OUT
+        # for conn in conn_list: # COMMENT OUT
+        #     print("\nConnection Info:") # COMMENT OUT
+        #     conn.show() # COMMENT OUT
         try:
             for conn in conn_list:
                 conn.establishConnection()
@@ -75,12 +75,16 @@ def main(clustername, csvname):
                 try:
                     for conn in conn_list:
                         conn.commit()
+                        conn.closeConnection()
+                    print("Tables successfully loaded.")
                 except BaseException as e:
                     print("Error when commiting:")
                     print(str(e))
             except BaseException as e:
                 print("Could not load Data:")
                 print(str(e))
+                for conn in conn_list:
+                    conn.rollback()
         except BaseException as e:
             print("Could not establish connection:")
             print(str(e))
@@ -91,10 +95,9 @@ def main(clustername, csvname):
 def noPartitioning(clustercfg, csvfile):
     conn_list = list()
     nodes = getNodeInfo(clustercfg)
-    catalog = getCatalogParams(clustercfg)
     for (i, node) in enumerate(nodes):
         if str(node['nodeid']) in clustercfg: # Weeding out extra nodes not in clustercfg
-            conn_list.insert(-1, connectionLoader(node, csvfile, catalog) )
+            conn_list.insert(-1, connectionLoader(node, csvfile, clustercfg) )
 
     return conn_list
 
@@ -102,7 +105,6 @@ def noPartitioning(clustercfg, csvfile):
 def rangePartitioning(clustercfg, csvfile):
     conn_list = list() # For storing connections.
     nodes = getNodeInfo(clustercfg) # For connecting to nodes.
-    catalog = getCatalogParams(clustercfg) # For connecting to catalog.
     columns = getColumns(nodes[0]) # For figuring out which column number to range by.
     colnum = None
 
@@ -114,16 +116,16 @@ def rangePartitioning(clustercfg, csvfile):
     # sort csvfile
     csvfile = sorted(csvfile, key=lambda x: int(x[colnum]))
 
-    print("\ncsvfile (sorted):") # COMMENT OUT
-    for row in csvfile: print(row) # COMMENT OUT
-    print("\nCOLUMNS (where column '{}' is in position {}):\n{}".format(clustercfg['partition']['column'], colnum, columns)) # COMMENT OUT
+    # print("\ncsvfile (sorted):") # COMMENT OUT
+    # for row in csvfile: print(row) # COMMENT OUT
+    # print("\nCOLUMNS (where column '{}' is in position {}):\n{}".format(clustercfg['partition']['column'], colnum, columns)) # COMMENT OUT
 
 
     for (i, node) in enumerate(nodes):
         if str(node['nodeid']) in clustercfg:
             # Get data in range
-            print("\nnode{}".format(node['nodeid'])) # COMMENT OUT
-            print("Range: {} to {}".format(clustercfg[str(node['nodeid'])]['param1'], clustercfg[str(node['nodeid'])]['param2'])) # COMMENT OUT
+            # print("\nnode{}".format(node['nodeid'])) # COMMENT OUT
+            # print("Range: {} to {}".format(clustercfg[str(node['nodeid'])]['param1'], clustercfg[str(node['nodeid'])]['param2'])) # COMMENT OUT
             if float(clustercfg[str(node['nodeid'])]['param1']) < float(clustercfg[str(node['nodeid'])]['param2']):
                 (startrow, endrow) = getRangeSlice(
                                         clustercfg[str(node['nodeid'])]['param1'],
@@ -132,10 +134,10 @@ def rangePartitioning(clustercfg, csvfile):
                                     )
             else:
                 (startrow, endrow) = (None, None)
-            print("Result ({}:{}) out of (0:{}):".format(startrow, endrow, len(csvfile))) # COMMENT OUT
-            for row in csvfile[startrow:endrow]: print(row) # COMMENT OUT
+            # print("Result ({}:{}) out of (0:{}):".format(startrow, endrow, len(csvfile))) # COMMENT OUT
+            # for row in csvfile[startrow:endrow]: print(row) # COMMENT OUT
             if startrow is not None and endrow is not None:
-                conn_list.insert(-1, connectionLoader(node, csvfile[startrow:endrow], catalog) )
+                conn_list.insert(-1, connectionLoader(node, csvfile[startrow:endrow], clustercfg) )
             else:
                 return None
 
@@ -181,7 +183,6 @@ def getRangeSlice(low, high, colnum, csvfile):
 def hashPartitioning(clustercfg, csvfile):
     conn_list = list()
     nodes = getNodeInfo(clustercfg)
-    catalog = getCatalogParams(clustercfg)
     candidates, colNumber = catalogCompliance(clustercfg,nodes)
     partparam1 = len(candidates)
 
@@ -193,7 +194,7 @@ def hashPartitioning(clustercfg, csvfile):
             part = ((int(row[colNumber]) % int(partparam1)) +1)
             if thisPart == part:
                 templist.insert(-1, row)
-        conn_list.insert(-1, connectionLoader(candidates[x], templist, catalog) )
+        conn_list.insert(-1, connectionLoader(candidates[x], templist, clustercfg) )
 
     return conn_list
 

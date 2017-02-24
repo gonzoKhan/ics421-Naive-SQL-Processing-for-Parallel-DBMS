@@ -8,10 +8,11 @@ class connectionLoader(object):
     # data: list of tuples where each row of csvfile is a tuple containing the separate columns.
     # catalog_params: dictionary used as parameters for catalog connection.
     # nodeparams: dictionary used as parameters for node connection.
-    def __init__(self, nodeinfo, data, catalog_params):
+    def __init__(self, nodeinfo, data, clustercfg):
         self.nodeinfo = nodeinfo
         self.data = data
-        self.catalog_params = catalog_params
+        self.clustercfg = clustercfg
+        self.catalog_params = self.__getCatalogParams()
         self.nodeparams = self.__getNodeParams()
         self.connection = None
         self.cursor = None
@@ -32,8 +33,8 @@ class connectionLoader(object):
     def establishConnection(self):
         try:
             self.connection = mysql.connector.connect(**self.nodeparams)
-            # print("Established connection:")
-            # print(self.nodeparams)
+            # print("Established connection:") # COMMENT OUT
+            # print(self.nodeparams) # COMMENT OUT
         except mysql.connector.Error as err:
             print("ERROR: Connecting with node{}:\nnodeinfo: {}\n".format(self.nodeinfo['nodeid'], self.nodeinfo))
             print(err)
@@ -60,8 +61,8 @@ class connectionLoader(object):
                 insert_statement = insert_statement[:-2]
                 insert_statement += ")"
 
-                print("insert_statement:\n{}".format(insert_statement))
-                print(self.data)
+                # print("insert_statement:\n{}".format(insert_statement)) # COMMENT OUT
+                # print(self.data) # COMMENT OUT
 
                 self.cursor.executemany(insert_statement, self.data)
             except mysql.connector.Error as err:
@@ -76,8 +77,71 @@ class connectionLoader(object):
     def commit(self):
         self.connection.commit()
 
+        update_catalog = (
+            "UPDATE DTABLES "
+            "SET partmtd=%s, "
+            "partcol=%s, "
+            "partparam1=%s, "
+            "partparam2=%s "
+            "WHERE tname=%s AND nodeid=%s;"
+        )
+
+        results = None
+        try:
+            connection = mysql.connector.connect(**self.catalog_params)
+            cursor = connection.cursor()
+
+            node = self.clustercfg[str(self.nodeinfo['nodeid'])]
+            partitioning = self.clustercfg['partition']
+            if partitioning['method'] == 'range':
+                method = 1;
+            elif partitioning['method'] == 'hash':
+                method = 2;
+            else:
+                method = 0
+            cursor.execute(
+                            update_catalog,
+                            (method, partitioning['column'], node['param1'],
+                            node['param2'], self.nodeinfo['tname'], self.nodeinfo['nodeid'])
+                        )
+            connection.commit()
+
+        except mysql.connector.Error as err:
+            print(err)
+        except BaseException as err:
+            print(str(err))
+        finally:
+            cursor.close()
+            connection.close()
+
     def rollback(self):
         self.connection.rollback()
+
+    def closeConnection(self):
+        try:
+            self.cursor.close()
+        except:
+            pass
+        try:
+            self.connection.close()
+        except:
+            pass
+
+    def __getCatalogParams(self):
+        try:
+            (host, port, database) = self.__parseURL(self.clustercfg['catalog']['hostname'])
+            return  {
+                        'host': host,
+                        'port': port,
+                        'database': database,
+                        'user': self.clustercfg['catalog']['username'],
+                        'password': self.clustercfg['catalog']['passwd']
+
+                    }
+        except BaseException as e:
+            print("getCatalogParams error:")
+            print(str(e))
+            return None
 
 
     # returns dictionary of params for connection to node
