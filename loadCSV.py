@@ -184,11 +184,12 @@ def hashPartitioning(clustercfg, csvfile):
     tableInsert = ("INSERT INTO {0} VALUES {1};")
 
     for (i, row) in enumerate(csvfile):
-        part = ((int(row[colNumber]) % partparam1) +1)
+        part = ((int(row[colNumber]) % int(partparam1)) +1)
         # print (tableInsert.format(nodes[part-1]['tname'], row))
-        partitionInsertRow.insert(0, (part, tableInsert.format(nodes[part-1]['tname'], row)))
+        # partitionInsertRow.insert(0, (part, tableInsert.format(nodes[part-1]['tname'], row)))
+        conn_list.insert(-1, connectionLoader(nodes[part-1], row, catalog) )
         # print((int(row[colNumber]) % partparam1) +1)
-    print (partitionInsertRow)
+    # print (partitionInsertRow)
     return conn_list
 
 # Takes the clustercfg dictionary and returns a list of dictionaries containing info on each node with the table from clustercfg.
@@ -282,16 +283,18 @@ def catalogCompliance(clustercfg, nodes):
         colNumber = None
         #Checks every col against the potential range column
         for col in range(len(partCol)):
+            print(partCol[int(col)])
+            print (col)
             if clustercfg['partition']['column'] == partCol[int(col)]:
                 colNumber = int(col)
                 # Checks candidate nodes for correct partition
                 for (i, node) in enumerate(nodes):
-                    if 2 == nodes[i]['partmtd']:
-                        candidates.insert(0,nodes[i])
+                    # if 2 == nodes[i]['partmtd']:
+                    candidates.insert(0,nodes[i])
                 return candidates , colNumber
-            else:
-                print("The available columns for this table are: {0}. \n {1} is not a column in this table.".format(partCol,clustercfg['partition']['column']))
-                return candidates , colNumber
+
+        print("The available columns for this table are: {0}. \n {1} is not a column in this table.".format(partCol,clustercfg['partition']['column']))
+        return candidates , colNumber
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
