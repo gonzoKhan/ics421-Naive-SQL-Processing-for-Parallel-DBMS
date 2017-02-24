@@ -52,7 +52,7 @@ class SQLconnectionThread (threading.Thread):
             cursor.execute(self.toSQL)
             results = cursor.fetchone()
             while results is not None:
-                print(results[0],results[1])
+                print(results)
                 results = cursor.fetchone()
             cursor.close()
             connection.close()
