@@ -177,19 +177,18 @@ def hashPartitioning(clustercfg, csvfile):
     nodes = getNodeInfo(clustercfg)
     catalog = getCatalogParams(clustercfg)
     candidates, colNumber = catalogCompliance(clustercfg,nodes)
-    # print ("Candidate Nodes: {}".format(candidates))
-    # print (colNumber)
-    partitionInsertRow = list()
     partparam1 = len(candidates)
-    tableInsert = ("INSERT INTO {0} VALUES {1};")
 
-    for (i, row) in enumerate(csvfile):
-        part = ((int(row[colNumber]) % int(partparam1)) +1)
-        # print (tableInsert.format(nodes[part-1]['tname'], row))
-        # partitionInsertRow.insert(0, (part, tableInsert.format(nodes[part-1]['tname'], row)))
-        conn_list.insert(-1, connectionLoader(nodes[part-1], row, catalog) )
-        # print((int(row[colNumber]) % partparam1) +1)
-    # print (partitionInsertRow)
+    for x in range(partparam1):
+        thisPart = candidates[x]['nodeid']
+        print(thisPart)
+        templist = list()
+        for (i,row) in enumerate(csvfile):
+            part = ((int(row[colNumber]) % int(partparam1)) +1)
+            if thisPart == part:
+                templist.insert(-1, row)
+        conn_list.insert(-1, connectionLoader(candidates[x], templist, catalog) )
+
     return conn_list
 
 # Takes the clustercfg dictionary and returns a list of dictionaries containing info on each node with the table from clustercfg.
@@ -283,8 +282,6 @@ def catalogCompliance(clustercfg, nodes):
         colNumber = None
         #Checks every col against the potential range column
         for col in range(len(partCol)):
-            print(partCol[int(col)])
-            print (col)
             if clustercfg['partition']['column'] == partCol[int(col)]:
                 colNumber = int(col)
                 # Checks candidate nodes for correct partition
