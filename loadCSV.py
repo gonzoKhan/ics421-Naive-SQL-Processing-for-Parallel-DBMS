@@ -149,7 +149,15 @@ def getRangeSlice(low, high, colnum, csvfile):
 
 # Hash partitioning
 def hashPartitioning(clustercfg, csvfile):
-    pass
+    conn_list = list()
+    nodes = getNodeInfo(clustercfg)
+    catalog = getCatalogParams(clustercfg)
+    candidates = catalogCompliance(clustercfg,nodes)
+    print ("Candidate Nodes: {}".format(candidates))
+
+
+
+    return conn_list 
 
 # Takes the clustercfg dictionary and returns a list of dictionaries containing info on each node with the table from clustercfg.
 def getNodeInfo(clustercfg):
@@ -235,6 +243,23 @@ def parseURL(url):
         return hostmatch.groups()
     else:
         return None
+# A check to see that the partition column requested exists in the table, and that the nodes are partitioned for the same type
+def catalogCompliance(clustercfg, nodes):
+        candidates = list()
+        partCol = getColumns(nodes[0])
+
+        #Checks every col against the potential range column
+        for col in range(len(partCol)):
+            if clustercfg['partition']['column'] == partCol[int(col)]:
+                # Checks candidate nodes for correct partition
+                for (i, node) in enumerate(nodes):
+                    if clustercfg['partition']['method'] == nodes[i]['partmtd']:
+                        candidates = nodes[i]
+
+                return candidates
+            else:
+                print("The available columns for this table are: {0}. \n {1} is not a column in this table.".format(partCol,clustercfg['partition']['column']))
+                return candidates
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
