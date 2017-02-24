@@ -66,6 +66,26 @@ def main(clustername, csvname):
         for conn in conn_list:
             print("\nConnection Info:")
             conn.show()
+        try:
+            for conn in conn_list:
+                conn.establishConnection()
+            try:
+                for conn in conn_list:
+                    conn.loadData()
+                try:
+                    for conn in conn_list:
+                        conn.commit()
+                except BaseException as e:
+                    print("Error when commiting:")
+                    print(str(e))
+            except BaseException as e:
+                print("Could not load Data:")
+                print(str(e))
+        except BaseException as e:
+            print("Could not establish connection:")
+            print(str(e))
+    else:
+        print("Connection list could not be established.")
 
 # No partitioning method so insert everything into all tables
 def noPartitioning(clustercfg, csvfile):
@@ -111,7 +131,10 @@ def rangePartitioning(clustercfg, csvfile):
                                 )
             print("Result ({}:{}) out of (0:{}):".format(startrow, endrow, len(csvfile))) # COMMENT OUT
             for row in csvfile[startrow:endrow]: print(row) # COMMENT OUT
-            conn_list.insert(-1, connectionLoader(node, csvfile[startrow:endrow], catalog) )
+            if startrow is not None and endrow is not None:
+                conn_list.insert(-1, connectionLoader(node, csvfile[startrow:endrow], catalog) )
+            else:
+                return None
 
     return conn_list
 
@@ -146,6 +169,7 @@ def getRangeSlice(low, high, colnum, csvfile):
     except BaseException as e:
         print("Problem with range parameters:")
         print(str(e))
+        return (None, None)
 
 # Hash partitioning
 def hashPartitioning(clustercfg, csvfile):

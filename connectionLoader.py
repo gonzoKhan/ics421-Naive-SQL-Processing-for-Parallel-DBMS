@@ -32,6 +32,8 @@ class connectionLoader(object):
     def establishConnection(self):
         try:
             self.connection = mysql.connector.connect(**self.nodeparams)
+            # print("Established connection:")
+            # print(self.nodeparams)
         except mysql.connector.Error as err:
             print("ERROR: Connecting with node{}:\nnodeinfo: {}\n".format(self.nodeinfo['nodeid'], self.nodeinfo))
             print(err)
@@ -42,29 +44,42 @@ class connectionLoader(object):
     # Must be called after establishConnection. It inserts the data into the database for the connection.
     def loadData(self):
         if self.connection:
-
             try:
-                self.cursor = self.connection.cursor()
-                self.cursor.execute("SELECT * FROM %s", (nodeinfo['tablename']))
+                self.cursor = self.connection.cursor(buffered=True)
+                self.cursor.execute("SELECT * FROM {};".format(self.nodeinfo['tname']))
                 fieldnames = [i[0] for i in self.cursor.description]
-                insert_statement = "INSERT INTO %(table)s ("
+                insert_statement = "INSERT INTO {} (".format(self.nodeinfo['tname'])
 
                 # Add in column names
                 for col in fieldnames:
-                    insert_statement.append(col + ", ")
-                insert_statement.rstrip(',')
-                insert_statement.append(") VALUES (")
+                    insert_statement += col + ", "
+                insert_statement = insert_statement[:-2]
+                insert_statement += ") VALUES ("
                 for i in fieldnames:
-                    insert_statement.append("%s, ")
-                insert_statement.rstrip(',')
-                insert_statement.append(")")
+                    insert_statement += "%s, "
+                insert_statement = insert_statement[:-2]
+                insert_statement += ")"
 
                 print("insert_statement:\n{}".format(insert_statement))
+                print(self.data)
 
                 self.cursor.executemany(insert_statement, self.data)
-            except:
-                pass # FIX THIS LATER
-###################################################################
+                print("TEST")
+            except mysql.connector.Error as err:
+                print("ERROR: Loading with node{}:\nnodeinfo: {}\n".format(self.nodeinfo['nodeid'], self.nodeinfo))
+                print(err)
+            except BaseException as e:
+                print("Failed to load data:")
+                print(str(e))
+        else:
+            raise Exception("Connection not established before attempting to load data.")
+
+    def commit(self):
+        self.connection.commit()
+
+    def rollback(self):
+        self.connection.rollback()
+
 
     # returns dictionary of params for connection to node
     # nodeparams returned: user, passwd, host, port, database
