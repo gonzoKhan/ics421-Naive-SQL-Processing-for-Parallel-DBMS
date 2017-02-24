@@ -44,10 +44,11 @@ def main(clustername, csvname):
     csv_walker.walk(csv_loader, csv_tree)
     csvfile = csv_loader.getCSV()
 
-    print("clustercfg")
-    print(clustercfg)
-    print("csvfile")
-    print(csvfile)
+    print("\nclustercfg contents:\n{")
+    for x in clustercfg: print("{}: {}".format(x, clustercfg[x]))
+    print("}")
+    print("\ncsvfile (unsorted):")
+    for x in csvfile: print(x)
 
     # Get partition method and get list of connectionLoaders
     conn_list = None
@@ -61,48 +62,76 @@ def main(clustername, csvname):
             conn_list = hashPartitioning(clustercfg, csvfile)
 
     if conn_list:
-        print("Got conn_list")
-        print(conn_list)
+        print("\nGot conn_list:")
+        for conn in conn_list:
+            print("\nConnection Info:")
+            conn.show()
 
 # No partitioning method so insert everything into all tables
 def noPartitioning(clustercfg, csvfile):
     conn_list = list()
     nodes = getNodeInfo(clustercfg)
-    if len(nodes) <= int(clustercfg['numnodes']):
-        for (i, node) in enumerate(nodes):
-            if str(node['nodeid']) in clustercfg:
-                catalog = getCatalogParams(clustercfg)
-                conn_list.insert(-1, connectionLoader(node, csvfile, catalog) )
+    catalog = getCatalogParams(clustercfg)
+    for (i, node) in enumerate(nodes):
+        if str(node['nodeid']) in clustercfg: # Weeding out extra nodes not in clustercfg
+            conn_list.insert(-1, connectionLoader(node, csvfile, catalog) )
 
     return conn_list
 
 # Range partitioning
 def rangePartitioning(clustercfg, csvfile):
-    conn_list = list()
-    nodes = getNodeInfo(clustercfg)
-    columns = getColumns(nodes[0])
+    conn_list = list() # For storing connections.
+    nodes = getNodeInfo(clustercfg) # For connecting to nodes.
+    catalog = getCatalogParams(clustercfg) # For connecting to catalog.
+    columns = getColumns(nodes[0]) # For figuring out which column number to range by.
     colnum = None
 
     # Get column number for sorting
     for (i, column) in enumerate(columns):
         if column == clustercfg['partition']['column']:
             colnum = i
-    print(columns)
-    print("colnum:{}".format(colnum))
 
     # sort csvfile
     csvfile = sorted(csvfile, key=lambda x: int(x[colnum]))
-    for row in csvfile:
-        print(row)
 
-    if columns and len(nodes) <= int(clustercfg['numnodes']):
-        for (i, node) in enumerate(nodes):
-            if str(node['nodeid']) in clustercfg:
-                catalog = getCatalogParams(clustercfg)
-                conn_list.insert(-1, connectionLoader(node, csvfile, catalog) )
+    print("\ncsvfile (sorted):") # COMMENT OUT
+    for row in csvfile: print(row) # COMMENT OUT
+    print("\nCOLUMNS (where column '{}' is in position {}):\n{}".format(clustercfg['partition']['column'], colnum, columns)) # COMMENT OUT
+
+
+    for (i, node) in enumerate(nodes):
+        if str(node['nodeid']) in clustercfg:
+            # Get data in range
+            print("\nnode{}".format(node['nodeid'])) # COMMENT OUT
+            print("Range: {} to {}".format(clustercfg[str(node['nodeid'])]['param1'], clustercfg[str(node['nodeid'])]['param2'])) # COMMENT OUT
+            (startrow, endrow) = getRangeSlice(
+                                    int(clustercfg[str(node['nodeid'])]['param1']),
+                                    int(clustercfg[str(node['nodeid'])]['param2']),
+                                    colnum, csvfile
+                                )
+            print("Result ({}:{}) out of (0:{}):".format(startrow, endrow, len(csvfile))) # COMMENT OUT
+            for row in csvfile[startrow:endrow]: print(row) # COMMENT OUT
+            conn_list.insert(-1, connectionLoader(node, csvfile[startrow:endrow], catalog) )
 
     return conn_list
 
+# returns the beginning and ending index for slice for given range.
+def getRangeSlice(low, high, colnum, csvfile):
+    try:
+        startrow = None
+        endrow = None
+        for (i, row) in enumerate(csvfile):
+            if startrow is None and int(row[colnum]) >= low:
+                # print("{}>={}".format(row[colnum], low)) # COMMENT OUT
+                startrow = i
+            elif startrow is not None and int(row[colnum]) <= high:
+                # print("{}<={}".format(row[colnum], high)) # COMMENT OUT
+                endrow = i
+        endrow = endrow + 1 # to include last element for slice command
+        return (startrow, endrow)
+    except BaseException as e:
+        print("Problem with range parameters:")
+        print(str(e))
 
 # Hash partitioning
 def hashPartitioning(clustercfg, csvfile):

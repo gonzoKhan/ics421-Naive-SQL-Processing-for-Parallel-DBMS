@@ -20,6 +20,14 @@ class connectionLoader(object):
     def updateNodeParams(self):
         self.nodeparams = self.__getNodeParams()
 
+    def show(self):
+        print("NODEINFO:")
+        print(self.nodeinfo)
+        print("CATALOG PARAMETERS:")
+        print(self.catalog_params)
+        print("DATA:")
+        for x in self.data: print(x)
+
     # Makes a connection with the node.
     def establishConnection(self):
         try:
