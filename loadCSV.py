@@ -124,11 +124,14 @@ def rangePartitioning(clustercfg, csvfile):
             # Get data in range
             print("\nnode{}".format(node['nodeid'])) # COMMENT OUT
             print("Range: {} to {}".format(clustercfg[str(node['nodeid'])]['param1'], clustercfg[str(node['nodeid'])]['param2'])) # COMMENT OUT
-            (startrow, endrow) = getRangeSlice(
-                                    clustercfg[str(node['nodeid'])]['param1'],
-                                    clustercfg[str(node['nodeid'])]['param2'],
-                                    colnum, csvfile
-                                )
+            if float(clustercfg[str(node['nodeid'])]['param1']) < float(clustercfg[str(node['nodeid'])]['param2']):
+                (startrow, endrow) = getRangeSlice(
+                                        clustercfg[str(node['nodeid'])]['param1'],
+                                        clustercfg[str(node['nodeid'])]['param2'],
+                                        colnum, csvfile
+                                    )
+            else:
+                (startrow, endrow) = (None, None)
             print("Result ({}:{}) out of (0:{}):".format(startrow, endrow, len(csvfile))) # COMMENT OUT
             for row in csvfile[startrow:endrow]: print(row) # COMMENT OUT
             if startrow is not None and endrow is not None:
@@ -146,6 +149,7 @@ def getRangeSlice(low, high, colnum, csvfile):
         get_endrow = 0
         if low == '-inf':
             startrow = 0
+            endrow = 0
             get_endrow = 1
         else:
             low = float(low)
@@ -156,15 +160,17 @@ def getRangeSlice(low, high, colnum, csvfile):
             high = float(high)
 
         for (i, row) in enumerate(csvfile):
-            if startrow is None and float(row[colnum]) >= low:
-                # print("{}>={}".format(row[colnum], low)) # COMMENT OUT
+            if startrow is None and float(row[colnum]) > low:
+                # print("{}>{}".format(row[colnum], low)) # COMMENT OUT
                 startrow = i
                 if get_endrow == 0:
+                    endrow = i
                     get_endrow = 1
             elif get_endrow > 0 and float(row[colnum]) <= high:
                 # print("{}<={}".format(row[colnum], high)) # COMMENT OUT
                 endrow = i
-        endrow = endrow + 1 # to include last element for slice command
+        if endrow is not None:
+            endrow = endrow + 1 # to include last element for slice command
         return (startrow, endrow)
     except BaseException as e:
         print("Problem with range parameters:")

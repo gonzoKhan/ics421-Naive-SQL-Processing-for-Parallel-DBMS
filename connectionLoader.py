@@ -64,7 +64,6 @@ class connectionLoader(object):
                 print(self.data)
 
                 self.cursor.executemany(insert_statement, self.data)
-                print("TEST")
             except mysql.connector.Error as err:
                 print("ERROR: Loading with node{}:\nnodeinfo: {}\n".format(self.nodeinfo['nodeid'], self.nodeinfo))
                 print(err)
