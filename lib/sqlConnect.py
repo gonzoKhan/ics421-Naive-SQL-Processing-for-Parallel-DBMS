@@ -50,8 +50,10 @@ class SQLconnectionThread (threading.Thread):
             connection = mysql.connector.connect(**self.config)
             cursor = connection.cursor()
             cursor.execute(self.toSQL)
-            results = cursor.fetchall()
-            print(results)
+            results = cursor.fetchone()
+            while results is not None:
+                print(results[0],results[1])
+                results = cursor.fetchone()
             cursor.close()
             connection.close()
 
